@@ -32,10 +32,24 @@ namespace SequenceDataStructure.Controllers
         }
 
         [HttpGet]
-        [Route("getidx/{idx}")]
-        public ActionResult GetByIDX(int id)
+        [Route("getidx")]
+        public ActionResult GetByIDX([FromQuery] int min, [FromQuery] int max, [FromQuery] int idx)
         {
-            var 
+            try
+            {
+                var obj = SequentialListFactory.GenerateList(min, max);
+                int res = obj[idx];
+                return Ok(res);
+
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
         }
     }
 }
