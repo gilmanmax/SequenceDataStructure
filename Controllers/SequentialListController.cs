@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SequenceDataStructure.Models;
-using SequenceDataStructure.Model.Exceptions;
+using SequenceDataStructure.Models.Exceptions;
+using SequenceDataStructure.Helpers;
 using System.Net.Mime;
 
 namespace SequenceDataStructure.Controllers
@@ -17,7 +18,7 @@ namespace SequenceDataStructure.Controllers
         {
             try
             { 
-                var res = SequentialListFactory.CreateFromInput(input);
+                var res = SequentialListFactory.CreateNew(input);
                 return Ok(res);
 
             }
@@ -37,7 +38,7 @@ namespace SequenceDataStructure.Controllers
         {
             try
             {
-                var obj = SequentialListFactory.GenerateList(min, max);
+                var obj = SequentialListFactory.CreateNew(min, max);
                 int res = obj[idx];
                 return Ok(res);
 
@@ -48,6 +49,61 @@ namespace SequenceDataStructure.Controllers
             }
             catch
             {
+                return StatusCode(500);
+            }
+        }
+        /// <summary>
+        /// Gets the index of an element with value val
+        /// </summary>
+        /// <param name="min">Lowest number</param>
+        /// <param name="max">Highest number</param>
+        /// <param name="val">Value to search for.</param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("getval")]
+        public ActionResult GetIdxByVal([FromQuery] int min, [FromQuery] int max, [FromQuery] int val)
+        {
+            try
+            {
+                var obj = SequentialListFactory.CreateNew(min, max);
+                int res = obj.IndexOf(val);
+                if (res < 0)
+                {
+                    throw new ValueNotInListException();
+                }
+                return Ok(res);
+
+            }
+            
+            catch (Exception ex)
+            {
+                if (ex is IndexOutOfRangeException || ex is ValueNotInListException)
+                {
+                    return BadRequest(ex.Message);
+                }
+                return StatusCode(500);
+            }
+        }
+        /// <summary>
+        /// Gets element of index based off passed JSON object
+        /// </summary>
+        [HttpPost]
+        [Route("getidx")]
+        public ActionResult GetByIdx([FromBody] SequentialListJSONInput input)
+        {
+            try
+            {  
+                SequentialList list = SequentialListFactory.CreateNew(input);
+                int res = list[input.idx];
+                return Ok(res);
+
+            }
+            catch (Exception ex)
+            {
+                if (ex is NotSequentialException || ex is ArgumentNullException || ex is IndexOutOfRangeException)
+                {
+                    return BadRequest(ex.Message);
+                }
                 return StatusCode(500);
             }
         }

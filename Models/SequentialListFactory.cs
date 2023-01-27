@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-
+using SequenceDataStructure.Helpers;
+using SequenceDataStructure.Models.Exceptions;
 namespace SequenceDataStructure.Models
 {
     /// <summary>
@@ -11,15 +12,23 @@ namespace SequenceDataStructure.Models
         /// <summary>
         /// This is used to make a list during a "GET". If there were a DB,that would be used instead
         /// </summary>
-        public static SequentialList GenerateList(int min, int max)
+        /// 
+        public static SequentialList CreateNew(int min, int max)
         {
             return new SequentialList(min, max);
+        }
+        public static SequentialList CreateNew(SequentialListJSONInput input)
+        {
+            var output = new SequentialList(input);
+            //only allow sequentials
+            if (!output.IsSequential()) { throw new NotSequentialException(); }
+            return new SequentialList(input);
         }
         /// <summary>
         /// Creates a list from a POST request
         /// </summary>
         /// <param name="input">The input provided by user</param>
-        private static IEnumerable<int> GenerateList(SequentialListInput input)
+        public static IEnumerable<int> CreateNew(SequentialListInput input)
         {
             return new SequentialList(input.Min, input.Max);
         }
@@ -28,9 +37,9 @@ namespace SequenceDataStructure.Models
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static string CreateFromInput(SequentialListInput input)
+        public static string CreateJSONList(SequentialListInput input)
         {
-            var obj = GenerateList(input);
+            var obj = CreateNew(input);
             return JsonConvert.SerializeObject(obj, Formatting.None);
         }
     }

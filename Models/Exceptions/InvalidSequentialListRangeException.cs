@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SequenceDataStructure.Model.Exceptions
+namespace SequenceDataStructure.Models.Exceptions
 {
     public class InvalidSequentialListRangeException : Exception
     {
